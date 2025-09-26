@@ -1,0 +1,183 @@
+
+<!DOCTYPE html>
+<html>
+<head>
+    <title>ENJOY LEARNING SCIENCE</title>
+    <style>
+        body { font-family: Arial, sans-serif; padding: 20px; max-width: 900px; margin: auto; }
+        button { padding: 10px 20px; margin: 5px; cursor: pointer; }
+        .hidden { display: none; }
+        h2 { color: #2c3e50; }
+        #quiz-options button { display: block; margin: 5px 0; }
+        textarea { width: 100%; padding: 8px; margin-top: 5px; }
+    </style>
+</head>
+<body>
+
+<h1>Science Learning Website</h1>
+
+<!-- Subject Selection -->
+<div id="subject-selection">
+    <h2>Select Subject</h2>
+    <button onclick="selectSubject('Biology')">Biology</button>
+    <button onclick="selectSubject('Physics')">Physics</button>
+    <button onclick="selectSubject('Chemistry')">Chemistry</button>
+</div>
+
+<!-- Mode Selection -->
+<div id="mode-selection" class="hidden">
+    <h2 id="selected-subject-title"></h2>
+    <button onclick="startLearningMode()">Learning Mode</button>
+    <button onclick="startQuestioningMode()">Questioning Mode</button>
+    <button onclick="backToSubjectSelection()">Back to Subjects</button>
+</div>
+
+<!-- Learning Mode -->
+<div id="learning-mode" class="hidden">
+    <div id="topics"></div>
+    <div id="material"></div>
+    <div id="quiz"></div>
+    <button onclick="backToModeSelection()">Back</button>
+</div>
+
+<!-- Questioning Mode -->
+<div id="questioning-mode" class="hidden">
+    <textarea id="user-question" rows="3" placeholder="Type your question about the subject..."></textarea>
+    <button onclick="answerQuestion()">Submit</button>
+    <div id="answer" style="margin-top:10px; background:#f0f0f0; padding:10px;"></div>
+    <button onclick="backToModeSelection()">Back</button>
+</div>
+
+<script>
+let selectedSubject = "";
+
+const data = {
+    "Biology": [
+        {
+            "title": "Cell Structure",
+            "material": "Cells are the basic units of life. Every living organism is made up of cells.",
+            "quiz": [
+                { "question": "What is the control center of a cell?", "options": ["Nucleus","Ribosome","Mitochondria","Cytoplasm"], "answer": "Nucleus" }
+            ]
+        }
+    ],
+    "Physics": [
+        {
+            "title": "Newton's Laws",
+            "material": "Newton's laws describe the motion of objects. The first law states that an object in motion stays in motion unless acted upon by a force.",
+            "quiz": [
+                { "question": "Which law explains inertia?", "options": ["First law","Second law","Third law","Fourth law"], "answer": "First law" }
+            ]
+        }
+    ],
+    "Chemistry": [
+        {
+            "title": "Periodic Table",
+            "material": "The periodic table organizes all known elements based on their atomic number.",
+            "quiz": [
+                { "question": "What does each period represent?", "options": ["Row of elements","Column of elements","Type of atom","Mass number"], "answer": "Row of elements" }
+            ]
+        }
+    ]
+};
+
+// Subject Selection
+function selectSubject(subject) {
+    selectedSubject = subject;
+    document.getElementById("subject-selection").classList.add("hidden");
+    document.getElementById("mode-selection").classList.remove("hidden");
+    document.getElementById("selected-subject-title").innerText = `Selected Subject: ${subject}`;
+}
+
+function backToSubjectSelection() {
+    document.getElementById("mode-selection").classList.add("hidden");
+    document.getElementById("subject-selection").classList.remove("hidden");
+    selectedSubject = "";
+}
+
+// Mode Selection
+function startLearningMode() {
+    document.getElementById("mode-selection").classList.add("hidden");
+    document.getElementById("learning-mode").classList.remove("hidden");
+    showTopics();
+}
+
+function startQuestioningMode() {
+    document.getElementById("mode-selection").classList.add("hidden");
+    document.getElementById("questioning-mode").classList.remove("hidden");
+    document.getElementById("answer").innerHTML = "";
+}
+
+function backToModeSelection() {
+    document.getElementById("learning-mode").classList.add("hidden");
+    document.getElementById("questioning-mode").classList.add("hidden");
+    document.getElementById("mode-selection").classList.remove("hidden");
+    document.getElementById("topics").innerHTML = "";
+    document.getElementById("material").innerHTML = "";
+    document.getElementById("quiz").innerHTML = "";
+}
+
+// Learning Mode
+function showTopics() {
+    let html = "<h3>Select Topic:</h3>";
+    data[selectedSubject].forEach((t, index) => {
+        html += `<button onclick="showMaterial(${index})">${t.title}</button>`;
+    });
+    document.getElementById("topics").innerHTML = html;
+    document.getElementById("material").innerHTML = "";
+    document.getElementById("quiz").innerHTML = "";
+}
+
+function showMaterial(index) {
+    const topic = data[selectedSubject][index];
+    document.getElementById("material").innerHTML = `<h3>${topic.title}</h3><p>${topic.material}</p><button onclick="startQuiz(${index})">Take Quiz</button>`;
+    document.getElementById("quiz").innerHTML = "";
+}
+
+function startQuiz(index) {
+    const topic = data[selectedSubject][index];
+    let html = "<h3>Quiz:</h3>";
+    topic.quiz.forEach((q, i) => {
+        html += `<p>${i+1}. ${q.question}</p>`;
+        q.options.forEach(opt => {
+            html += `<button onclick="checkAnswer('${opt}', '${q.answer}', this)">${opt}</button>`;
+        });
+    });
+    document.getElementById("quiz").innerHTML = html;
+}
+
+function checkAnswer(selected, correct, btn) {
+    if (selected === correct) {
+        btn.style.background = "lightgreen";
+        alert("Correct!");
+    } else {
+        btn.style.background = "lightcoral";
+        alert(`Wrong! Correct answer is: ${correct}`);
+    }
+}
+
+// Questioning Mode
+function answerQuestion() {
+    const question = document.getElementById("user-question").value.trim();
+    if (!question) { alert("Please type your question!"); return; }
+
+    // Keyword-based answers for prototype (can upgrade to AI)
+    let answer = "Sorry, I cannot answer that question yet. In the real system, this will give an AI-generated answer based on the selected subject.";
+
+    if (selectedSubject === "Biology") {
+        if (question.toLowerCase().includes("cell")) answer = "Cells are the basic units of life, consisting of structures like nucleus, cytoplasm, and cell membrane.";
+        else if (question.toLowerCase().includes("photosynthesis")) answer = "Photosynthesis is the process by which plants make food using sunlight, water, and CO2.";
+    } else if (selectedSubject === "Physics") {
+        if (question.toLowerCase().includes("newton")) answer = "Newton's laws describe motion and the relationship between forces and objects.";
+        else if (question.toLowerCase().includes("force")) answer = "Force is mass times acceleration, F = m × a.";
+    } else if (selectedSubject === "Chemistry") {
+        if (question.toLowerCase().includes("periodic")) answer = "The periodic table organizes elements by increasing atomic number and properties.";
+        else if (question.toLowerCase().includes("atom")) answer = "Atoms are the basic units of matter, consisting of protons, neutrons, and electrons.";
+    }
+
+    document.getElementById("answer").innerHTML = `<strong>Answer:</strong> ${answer}`;
+}
+</script>
+
+</body>
+</html>
